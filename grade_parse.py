@@ -11,13 +11,15 @@ import seaborn as sns
 #files=['grd20161EN.pdf','grd20162EN.pdf','grd20163EN.pdf',
 #       'grd20171EN.pdf','grd20172EN.pdf','grd20173EN.pdf','grd20181EN.pdf']
 #files=['grd20173EN.pdf','grd20181EN.pdf']
-files=['grd20161EN.pdf']
+#files=['grd20161EN.pdf']
 #files=['grd20173EN.pdf']
-courses={}
-pages=''
-for file in files:
+
+#for file in files:
+def grade_parse(file):
 # %% Collect data from files
-    Term=file[3:8]
+    courses={}
+    pages=''
+    Term=file.split('/')[-1][3:8]
     pdfFileObj=open(file,'rb')
     pdfReader=PyPDF2.PdfFileReader(pdfFileObj)
     
@@ -55,41 +57,42 @@ for file in files:
             page_split.append(element)
 
 # %% Use Cleaned Data to create variables    
-for line in page_split:
-    j=line.split()
-    course=Term+'-'+j[0]
-    A=j[2]; B=j[4]; C=j[6]; D=j[8]; F=j[10]; GPA=j[11][-5:]
-    a = int(j[1]); b = int(j[3]); c =int(j[5]); d = int(j[7]); f = int(j[9]);
-    Q = int(j[15])
+    for line in page_split:
+        j=line.split()
+        course=Term+'-'+j[0]
+        A=j[2]; B=j[4]; C=j[6]; D=j[8]; F=j[10]; GPA=j[11][-5:]
+        a = int(j[1]); b = int(j[3]); c =int(j[5]); d = int(j[7]); f = int(j[9]);
+        Q = int(j[15])
+        
+        # Get Professor Name and Class Count
+        Prof = ''
+        for element in reversed(j):
+            if element.isdigit():
+                count = element
+                break
+            else:
+                Prof +=' '+element
+        Prof = Prof.strip()            
     
-    # Get Professor Name and Class Count
-    Prof = ''
-    for element in reversed(j):
-        if element.isdigit():
-            count = element
-            break
-        else:
-            Prof +=' '+element
-    Prof = Prof.strip()            
-
-    courses[course]={}
-    courses[course]['Major']=j[0][:4]
-    courses[course]['Term']=Term
-    courses[course]['A']=A
-    courses[course]['B']=B
-    courses[course]['C']=C
-    courses[course]['D']=D
-    courses[course]['F']=F
-    courses[course]['a']=a
-    courses[course]['b']=b
-    courses[course]['c']=c
-    courses[course]['d']=d
-    courses[course]['f']=f
-    courses[course]['GPA']=float(GPA)
-    courses[course]['Count']=count
-    courses[course]['Prof']=Prof
-    courses[course]['Q']=Q
-df=pd.DataFrame.from_dict(courses,orient='index')
+        courses[course]={}
+        courses[course]['Major']=j[0][:4]
+        courses[course]['Term']=Term
+        courses[course]['A']=A
+        courses[course]['B']=B
+        courses[course]['C']=C
+        courses[course]['D']=D
+        courses[course]['F']=F
+        courses[course]['a']=a
+        courses[course]['b']=b
+        courses[course]['c']=c
+        courses[course]['d']=d
+        courses[course]['f']=f
+        courses[course]['GPA']=float(GPA)
+        courses[course]['Count']=count
+        courses[course]['Prof']=Prof
+        courses[course]['Q']=Q
+    df=pd.DataFrame.from_dict(courses,orient='index')
+    return df
 
 # %% Plot Stuff
 #plt.figure(figsize=(12,4)) 
